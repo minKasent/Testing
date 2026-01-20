@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -17,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Integration tests for OrganizationController
- * Test Case IDs: TC028 - TC040 (End-to-End Flow Tests)
+ * Test Case IDs: TC028 - TC040
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,10 +34,6 @@ class OrganizationControllerIntegrationTest {
     void setUp() {
         organizationRepository.deleteAll();
     }
-
-    // ========================================
-    // TC028 - TC030: Page Navigation Tests
-    // ========================================
 
     @Test
     @Order(1)
@@ -69,10 +64,6 @@ class OrganizationControllerIntegrationTest {
                 .andExpect(redirectedUrl("/organizations"));
     }
 
-    // ========================================
-    // TC031 - TC035: Save Organization Flow Tests
-    // ========================================
-
     @Test
     @Order(4)
     @DisplayName("TC031: Save organization with valid data - Success")
@@ -86,7 +77,6 @@ class OrganizationControllerIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("/organizations/success/*"));
 
-        // Verify organization was saved
         assertThat(organizationRepository.existsByOrgNameIgnoreCase("Test Organization")).isTrue();
     }
 
@@ -103,7 +93,6 @@ class OrganizationControllerIntegrationTest {
                 .andExpect(model().hasErrors())
                 .andExpect(model().attributeHasFieldErrors("organizationDTO", "orgName"));
 
-        // Verify no organization was saved
         assertThat(organizationRepository.count()).isEqualTo(0);
     }
 
@@ -148,21 +137,13 @@ class OrganizationControllerIntegrationTest {
                 .andExpect(model().attributeHasFieldErrors("organizationDTO", "email"));
     }
 
-    // ========================================
-    // TC036 - TC038: Duplicate Name Tests
-    // ========================================
-
     @Test
     @Order(9)
     @DisplayName("TC036: Save organization with duplicate name - Fail")
     void tc036_saveOrganization_withDuplicateName_shouldFail() throws Exception {
-        // First, create an organization
-        Organization existing = Organization.builder()
-                .orgName("Existing Organization")
-                .build();
+        Organization existing = Organization.builder().orgName("Existing Organization").build();
         organizationRepository.save(existing);
 
-        // Try to create another with same name
         mockMvc.perform(post("/organizations/save")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("orgName", "Existing Organization"))
@@ -170,7 +151,6 @@ class OrganizationControllerIntegrationTest {
                 .andExpect(view().name("organization/form"))
                 .andExpect(model().hasErrors());
 
-        // Verify only one organization exists
         assertThat(organizationRepository.count()).isEqualTo(1);
     }
 
@@ -178,13 +158,9 @@ class OrganizationControllerIntegrationTest {
     @Order(10)
     @DisplayName("TC037: Save organization with duplicate name (different case) - Fail")
     void tc037_saveOrganization_withDuplicateNameDifferentCase_shouldFail() throws Exception {
-        // First, create an organization
-        Organization existing = Organization.builder()
-                .orgName("Test Organization")
-                .build();
+        Organization existing = Organization.builder().orgName("Test Organization").build();
         organizationRepository.save(existing);
 
-        // Try to create another with different case
         mockMvc.perform(post("/organizations/save")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("orgName", "TEST ORGANIZATION"))
@@ -193,21 +169,13 @@ class OrganizationControllerIntegrationTest {
                 .andExpect(model().hasErrors());
     }
 
-    // ========================================
-    // TC038 - TC040: Success Page and Director Button Tests
-    // ========================================
-
     @Test
     @Order(11)
     @DisplayName("TC038: Access success page after save - Director button enabled")
     void tc038_accessSuccessPage_shouldShowDirectorButton() throws Exception {
-        // First save an organization
-        Organization saved = Organization.builder()
-                .orgName("New Organization")
-                .build();
+        Organization saved = Organization.builder().orgName("New Organization").build();
         saved = organizationRepository.save(saved);
 
-        // Access success page
         mockMvc.perform(get("/organizations/success/" + saved.getOrgId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("organization/form"))
@@ -219,13 +187,9 @@ class OrganizationControllerIntegrationTest {
     @Order(12)
     @DisplayName("TC039: Access director page for saved organization - Success")
     void tc039_accessDirectorPage_forSavedOrganization_shouldSucceed() throws Exception {
-        // First save an organization
-        Organization saved = Organization.builder()
-                .orgName("Organization with Directors")
-                .build();
+        Organization saved = Organization.builder().orgName("Organization with Directors").build();
         saved = organizationRepository.save(saved);
 
-        // Access director page
         mockMvc.perform(get("/directors/organization/" + saved.getOrgId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("director/form"))

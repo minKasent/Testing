@@ -1,151 +1,106 @@
-# Lab 4 - Organization Management System
-## Software Testing Course
+<!-- # Organization Management System - Lab 4
 
----
+## Mô tả
+Hệ thống quản lý Organization được xây dựng cho môn học Software Testing. Ứng dụng cho phép:
+- Thêm mới Organization
+- Kiểm tra tính hợp lệ của dữ liệu nhập
+- Lưu dữ liệu vào cơ sở dữ liệu
+- Quản lý Director cho mỗi Organization
 
-## 📋 Mô tả
-Ứng dụng quản lý Organization được xây dựng bằng **Spring Boot 3** với **Thymeleaf** và **MySQL**. Bài tập nhằm đánh giá khả năng phân tích yêu cầu, lập trình ứng dụng và kiểm thử phần mềm.
+## Công nghệ sử dụng
+- **Backend**: Java 17, Spring Boot 3.2.0
+- **Template Engine**: Thymeleaf
+- **Database**: MySQL (production) / H2 (testing & demo)
+- **Build Tool**: Maven
+- **Testing**: JUnit 5, Mockito, Spring Boot Test
 
-## 🛠️ Công nghệ sử dụng
-- **Backend:** Java 17, Spring Boot 3.2.0
-- **Frontend:** Thymeleaf, HTML5, CSS3
-- **Database:** MySQL 8.0
-- **Testing:** JUnit 5, Mockito, AssertJ, H2 (in-memory)
-- **Build:** Maven
-
-## 📁 Cấu trúc Project
+## Cấu trúc project
 ```
-lab4/
-├── src/
-│   ├── main/
-│   │   ├── java/com/lab4/
-│   │   │   ├── controller/      # Controllers
-│   │   │   ├── dto/             # Data Transfer Objects
-│   │   │   ├── entity/          # JPA Entities
-│   │   │   ├── exception/       # Custom Exceptions
-│   │   │   ├── repository/      # JPA Repositories
-│   │   │   ├── service/         # Business Logic
-│   │   │   └── OrganizationManagementApplication.java
-│   │   └── resources/
-│   │       ├── templates/       # Thymeleaf Templates
-│   │       │   ├── organization/
-│   │       │   └── director/
-│   │       └── application.properties
-│   └── test/
-│       ├── java/com/lab4/       # Test Classes
-│       └── resources/
-│           └── application-test.properties
-├── pom.xml
-├── README.md
-└── TEST_REPORT.md
+src/
+├── main/
+│   ├── java/com/lab4/
+│   │   ├── controller/          # Web controllers
+│   │   ├── dto/                 # Data Transfer Objects
+│   │   ├── entity/              # JPA Entities
+│   │   ├── exception/           # Custom exceptions
+│   │   ├── repository/          # JPA Repositories
+│   │   └── service/             # Business logic
+│   └── resources/
+│       ├── templates/           # Thymeleaf templates
+│       └── application.properties
+└── test/
+    └── java/com/lab4/
+        ├── controller/          # Integration tests
+        ├── repository/          # Repository tests
+        ├── service/             # Service unit tests
+        └── validation/          # Validation tests
 ```
 
-## 🚀 Hướng dẫn cài đặt
+## Cài đặt và chạy
 
-### 1. Yêu cầu hệ thống
-- Java JDK 17+
-- Maven 3.8+
-- MySQL 8.0+ (Docker hoặc local)
+### Yêu cầu
+- Java 17+
+- Maven 3.6+
+- MySQL (optional - có thể dùng H2)
 
-### 2. Cấu hình Database
-Database MySQL đã được cấu hình với:
-- **Host:** localhost:3306
-- **Database:** lab4_db
-- **Username:** root
-- **Password:** 123456
-
-Nếu sử dụng Docker:
+### Cách 1: Chạy với H2 (Demo mode - Không cần MySQL)
 ```bash
-docker run --name mysql-lab4 -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=lab4_db -p 3306:3306 -d mysql:8.0
-```
-
-### 3. Build và Run
-```bash
-# Clone project
 cd D:\Class\Khoa\testting\lab4
+mvn spring-boot:run "-Dspring-boot.run.profiles=h2"
+```
 
-# Build project
-mvn clean install
+### Cách 2: Chạy với MySQL
+1. Start MySQL Docker container:
+```bash
+docker run --name mysql-lab4 -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=lab4_db -p 3306:3306 -d mysql:8
+```
 
-# Run application
+2. Chạy ứng dụng:
+```bash
+cd D:\Class\Khoa\testting\lab4
 mvn spring-boot:run
 ```
 
-### 4. Truy cập ứng dụng
-- **URL:** http://localhost:8080
-- **Organization List:** http://localhost:8080/organizations
-- **New Organization:** http://localhost:8080/organizations/new
+### Truy cập ứng dụng
+- **Web UI**: http://localhost:8080
+- **H2 Console** (nếu dùng H2 profile): http://localhost:8080/h2-console
 
-## 🧪 Chạy Tests
-
-### Chạy tất cả tests
+## Chạy Tests
 ```bash
+# Chạy tất cả tests
 mvn test
+
+# Chạy tests với report
+mvn test -Dsurefire.reportFormat=brief
 ```
 
-### Chạy test cụ thể
-```bash
-# Unit tests
-mvn test -Dtest=OrganizationServiceTest
+## API Endpoints
 
-# Validation tests
-mvn test -Dtest=OrganizationValidationTest
+| Method | URL | Mô tả |
+|--------|-----|-------|
+| GET | /organizations | Danh sách organizations |
+| GET | /organizations/new | Form tạo mới organization |
+| POST | /organizations/save | Lưu organization |
+| GET | /organizations/success/{id} | Trang thành công |
+| GET | /directors/organization/{id} | Quản lý directors |
+| POST | /directors/save | Lưu director |
 
-# Integration tests
-mvn test -Dtest=OrganizationControllerIntegrationTest
+## Validation Rules
 
-# Repository tests
-mvn test -Dtest=OrganizationRepositoryTest
-```
+### Organization Name
+- Bắt buộc
+- Độ dài: 3-255 ký tự
+- Không được trùng (không phân biệt hoa/thường)
 
-### Tạo Test Report
-```bash
-mvn test surefire-report:report
-```
-Report: `target/site/surefire-report.html`
+### Phone (tùy chọn)
+- Chỉ chứa số
+- Độ dài: 9-12 ký tự
 
-## 📝 Chức năng
+### Email (tùy chọn)
+- Đúng định dạng email
 
-### Organization Management
-| Chức năng | Mô tả |
-|-----------|-------|
-| Thêm mới | Tạo Organization với validation |
-| Xem danh sách | Hiển thị tất cả Organizations |
-| Quản lý Director | Thêm Directors cho Organization |
+## Test Cases
+Xem chi tiết trong file `TEST_REPORT.md`
 
-### Validation Rules
-| Field | Rule |
-|-------|------|
-| OrgName | Bắt buộc, 3-255 ký tự, không trùng |
-| Phone | 9-12 chữ số (nếu nhập) |
-| Email | Định dạng email hợp lệ (nếu nhập) |
-| Address | Tối đa 255 ký tự |
-
-## 📊 Test Cases Summary
-- **Tổng số Test Cases:** 45+
-- **Unit Tests:** 12
-- **Validation Tests:** 15
-- **Integration Tests:** 13
-- **Repository Tests:** 5
-
-Chi tiết xem tại: [TEST_REPORT.md](TEST_REPORT.md)
-
-## 📸 Screenshots
-
-### Organization List
-![Organization List](screenshots/org-list.png)
-
-### New Organization Form
-![New Organization](screenshots/org-form.png)
-
-### Director Management
-![Director Management](screenshots/director-form.png)
-
-## 👨‍💻 Tác giả
-- **Sinh viên:** [Tên sinh viên]
-- **MSSV:** [Mã số sinh viên]
-- **Môn học:** Software Testing
-- **Lab:** Lab 4
-
-## 📄 License
-This project is for educational purposes only.
+## Author
+Lab 4 - Software Testing Course -->
