@@ -1,0 +1,11 @@
+com\lab4\controller\OrganizationControllerIntegrationTest.class
+com\lab4\service\OrganizationServiceTest$CheckNameExistsTests.class
+com\lab4\service\OrganizationServiceTest$GetOrganizationTests.class
+com\lab4\validation\OrganizationValidationTest$OrgNameValidationTests.class
+com\lab4\service\OrganizationServiceTest$CreateOrganizationTests.class
+com\lab4\service\OrganizationServiceTest.class
+com\lab4\validation\OrganizationValidationTest.class
+com\lab4\OrganizationManagementApplicationTests.class
+com\lab4\repository\OrganizationRepositoryTest.class
+com\lab4\validation\OrganizationValidationTest$PhoneValidationTests.class
+com\lab4\validation\OrganizationValidationTest$EmailValidationTests.class
